@@ -1,11 +1,28 @@
-from collections import deque
 from decimal import Decimal
+from enum import Enum
 import re
+
+from calculator.tokens import OperatorToken, ValueToken, LeftParenthesesToken
+
 
 __author__ = 'Frank van Heeswijk'
 
 
+class Associativity(Enum):
+    left = 1
+    right = 2
+
+
 class Calculator:
+    __operators = {
+        # operator: (precedence, associativity, function)
+        "+": (0, Associativity.left, lambda op1, op2: op1 + op2),
+        "*": (1, Associativity.left, lambda op1, op2: op1 * op2)
+    }
+
+    def __init__(self):
+        self.operators = Calculator.__operators
+
     def evaluate(self, expression: str) -> Decimal:
         """
         Evaluates an expression and returns its result.
@@ -47,8 +64,14 @@ class Calculator:
                     raise RuntimeError("mismatched parentheses")
 
             else:
-                # todo implement precedence rules
-                stack.append(OperatorToken(token))
+                while len(stack) > 0:
+                    pop_token = stack.pop()
+                    if isinstance(pop_token, OperatorToken) and self.__has_lower_precedence(token, pop_token.operator):
+                        output_queue.append(pop_token)
+                    else:
+                        stack.append(pop_token)
+                        break
+                stack.append(self.__create_operator_token(token))
 
         while len(stack) > 0:
             pop_token = stack.pop()
@@ -58,59 +81,17 @@ class Calculator:
 
         return output_queue
 
+    def __create_operator_token(self, token: str) -> OperatorToken:
+        if token in self.operators:
+            return OperatorToken(token)
+        raise RuntimeError("Unsupported operator token: " + token)
 
-class Token:
-    pass
-
-
-class ValueToken(Token):
-    def __init__(self, value: Decimal):
-        self.value = value
-
-    def __repr__(self):
-        return "VT(" + str(self.value) + ")"
-
-    def __hash__(self):
-        return hash(self.value)
-
-    def __eq__(self, other):
-        if type(self) != type(other):
-            return False
-        return self.value == other.value
-
-    def __ne__(self, other):
-        return not self == other
-
-
-class OperatorToken(Token):
-    def __init__(self, operator: str):
-        self.operator = operator
-
-    def __repr__(self):
-        return "OT(" + self.operator + ")"
-
-    def __hash__(self):
-        return hash(str)
-
-    def __eq__(self, other):
-        if type(self) != type(other):
-            return False
-        return self.operator == other.operator
-
-    def __ne__(self, other):
-        return not self == other
-
-class LeftParenthesesToken(Token):
-    def __repr__(self):
-        return "LPT"
-
-    def __hash__(self):
-        return 0
-
-    def __eq__(self, other):
-        if type(self) != type(other):
-            return False
-        return True
-
-    def __ne__(self, other):
-        return not self == other
+    def __has_lower_precedence(self, operator1: str, operator2: str) -> bool:
+        if operator1 not in self.operators:
+            raise RuntimeError("Unsupported operator token: " + operator1)
+        if operator2 not in self.operators:
+            raise RuntimeError("Unsupported operator token: " + operator2)
+        operator1_tuple = self.operators[operator1]
+        operator2_tuple = self.operators[operator2]
+        return (operator1_tuple[1] == Associativity.left and operator1_tuple[0] <= operator2_tuple[0]) \
+               or (operator1_tuple[1] == Associativity.right and operator1_tuple[0] < operator2_tuple[0])
