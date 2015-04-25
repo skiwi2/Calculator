@@ -1,5 +1,6 @@
 from decimal import Decimal
 from enum import Enum
+import inspect
 import re
 
 from calculator.tokens import OperatorToken, ValueToken, LeftParenthesesToken
@@ -30,7 +31,25 @@ class Calculator:
         :param expression:  The input expression
         :return:    The output of evaluating the expression
         """
-        return Decimal(expression)
+
+        tokens = self.tokenize(expression)
+        stack = []
+        for token in tokens:
+            if isinstance(token, ValueToken):
+                stack.append(token.value)
+            elif isinstance(token, OperatorToken):
+                function = self.operators[token.operator][2]
+                argspec = inspect.getargspec(function)
+                argument_count = len(argspec.args)
+
+                if len(stack) < argument_count:
+                    raise RuntimeError("not enough tokens for: " + str(token) + ", expected: " + str(argument_count) + ", actual: " + str(len(tokens)))
+                values = [stack.pop() for x in range(argument_count)]
+                result = function(*values)
+                stack.append(result)
+            else:
+                raise RuntimeError("unexpected token: " + token)
+        return stack.pop()
 
     def tokenize(self, expression: str) -> list:
         """
@@ -41,6 +60,7 @@ class Calculator:
         :param expression:  The input expression
         :raise RuntimeError:    If the parentheses are mismatched
         """
+
         output_queue = []
         stack = []
         # todo do not depend on spaces anymore

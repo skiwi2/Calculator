@@ -12,6 +12,9 @@ class CalculatorTest(unittest.TestCase):
     def test_evaluate(self):
         calculator = Calculator()
         self.assertEqual(Decimal(4), calculator.evaluate("4"))
+        self.assertEqual(Decimal(21), calculator.evaluate("7 * 3"))
+        self.assertEqual(Decimal(11), calculator.evaluate("2 * 4 + 3"))
+        self.assertEqual(Decimal(45), calculator.evaluate("( 3 * ( 2 + 5 ) ) + 6 * ( 4 )"))
 
     def test_tokenize_value(self):
         calculator = Calculator()
