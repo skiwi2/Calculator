@@ -14,14 +14,14 @@ class CalculatorTest(unittest.TestCase):
         self.assertEqual(Decimal(4), calculator.evaluate("4"))
         self.assertEqual(Decimal(21), calculator.evaluate("7 * 3"))
         self.assertEqual(Decimal(11), calculator.evaluate("2 * 4 + 3"))
-        self.assertEqual(Decimal(45), calculator.evaluate("( 3 * ( 2 + 5 ) ) + 6 * ( 4 )"))
-        self.assertEqual(Decimal("25.92"), calculator.evaluate("2.7 * ( 3.2 + 6.4 )"))
-        self.assertEqual(Decimal(1), calculator.evaluate("- 2 * - 4 + - 7"))
+        self.assertEqual(Decimal(45), calculator.evaluate("(3 * (2 + 5)) + 6 * (4)"))
+        self.assertEqual(Decimal("25.92"), calculator.evaluate("2.7 * (3.2 + 6.4)"))
+        self.assertEqual(Decimal(1), calculator.evaluate("-2 * -4 + -7"))
 
     def test_evaluate_operators(self):
         calculator = Calculator()
-        self.assertEqual(Decimal(3), calculator.evaluate("+ 3"))
-        self.assertEqual(Decimal(-3), calculator.evaluate("- 3"))
+        self.assertEqual(Decimal(3), calculator.evaluate("+3"))
+        self.assertEqual(Decimal(-3), calculator.evaluate("-3"))
         self.assertEqual(Decimal(6), calculator.evaluate("2 * 3"))
         self.assertEqual(Decimal(2), calculator.evaluate("6 / 3"))
         self.assertEqual(Decimal(5), calculator.evaluate("2 + 3"))
@@ -29,8 +29,8 @@ class CalculatorTest(unittest.TestCase):
 
     def test_evaluate_operator_precedences(self):
         calculator = Calculator()
-        self.assertEqual(Decimal(-14), calculator.evaluate("- 3 * 5 + + 1"))
-        self.assertEqual(Decimal("6.5"), calculator.evaluate("8 / - 16 - - 7"))
+        self.assertEqual(Decimal(-14), calculator.evaluate("-3 * 5 + +1"))
+        self.assertEqual(Decimal("6.5"), calculator.evaluate("8 / -16 - -7"))
         self.assertEqual(Decimal(30), calculator.evaluate("5 * 3 * 8 / 4 / 2 * 6 / 3"))
         self.assertEqual(Decimal(-3), calculator.evaluate("2 + 3 + 4 - 5 - 8 + 6 + 4 - 9"))
 
@@ -48,7 +48,7 @@ class CalculatorTest(unittest.TestCase):
             ValueToken(Decimal(3)),
             RightParenthesesToken()
         ]
-        self.assertListEqual(expected, calculator.tokenize("( 3 )"))
+        self.assertListEqual(expected, calculator.tokenize("(3)"))
 
     def test_tokenize_simple_expression(self):
         calculator = Calculator()
@@ -79,7 +79,7 @@ class CalculatorTest(unittest.TestCase):
             ValueToken(Decimal(4)),
             RightParenthesesToken()
         ]
-        self.assertListEqual(expected, calculator.tokenize("2 * ( 3 + 4 )"))
+        self.assertListEqual(expected, calculator.tokenize("2 * (3 + 4)"))
 
     def test_tokenize_expression_no_parentheses(self):
         calculator = Calculator()
@@ -110,7 +110,7 @@ class CalculatorTest(unittest.TestCase):
             ValueToken(Decimal(3)),
             RightParenthesesToken()
         ]
-        self.assertListEqual(expected, calculator.tokenize("2 * ( - 3 )"))
+        self.assertListEqual(expected, calculator.tokenize("2 * (-3)"))
 
     def test_tokenize_unary_minus_after_operator(self):
         calculator = Calculator()
@@ -120,7 +120,7 @@ class CalculatorTest(unittest.TestCase):
             OperatorToken('u-'),
             ValueToken(Decimal(2))
         ]
-        self.assertListEqual(expected, calculator.tokenize("3 * - 2"))
+        self.assertListEqual(expected, calculator.tokenize("3 * -2"))
 
     def test_tokenize_unary_plus_start_of_expression(self):
         calculator = Calculator()
@@ -140,7 +140,7 @@ class CalculatorTest(unittest.TestCase):
             ValueToken(Decimal(3)),
             RightParenthesesToken()
         ]
-        self.assertListEqual(expected, calculator.tokenize("2 * ( + 3 )"))
+        self.assertListEqual(expected, calculator.tokenize("2 * (+3)"))
 
     def test_tokenize_unary_plus_after_operator(self):
         calculator = Calculator()
@@ -150,7 +150,7 @@ class CalculatorTest(unittest.TestCase):
             OperatorToken('u+'),
             ValueToken(Decimal(2))
         ]
-        self.assertListEqual(expected, calculator.tokenize("3 * + 2"))
+        self.assertListEqual(expected, calculator.tokenize("3 * +2"))
 
     def test_rpn_value(self):
         calculator = Calculator()
@@ -164,15 +164,15 @@ class CalculatorTest(unittest.TestCase):
         expected = [
             ValueToken(Decimal(2))
         ]
-        self.assertListEqual(expected, calculator.to_rpn(calculator.tokenize("( 2 )")))
+        self.assertListEqual(expected, calculator.to_rpn(calculator.tokenize("(2)")))
 
     def test_rpn_value_parentheses_missing_right(self):
         calculator = Calculator()
-        self.assertRaises(RuntimeError, calculator.to_rpn, calculator.tokenize("2 )"))
+        self.assertRaises(RuntimeError, calculator.to_rpn, calculator.tokenize("2)"))
 
     def test_rpn_value_parentheses_missing_left(self):
         calculator = Calculator()
-        self.assertRaises(RuntimeError, calculator.to_rpn, calculator.tokenize("( 2"))
+        self.assertRaises(RuntimeError, calculator.to_rpn, calculator.tokenize("(2"))
 
     def test_rpn_decimal(self):
         calculator = Calculator()
@@ -197,7 +197,7 @@ class CalculatorTest(unittest.TestCase):
             ValueToken(Decimal(4)),
             OperatorToken('+'),
         ]
-        self.assertListEqual(expected, calculator.to_rpn(calculator.tokenize("( 2 + 4 )")))
+        self.assertListEqual(expected, calculator.to_rpn(calculator.tokenize("(2 + 4)")))
 
     def test_rpn_multiple_parentheses(self):
         calculator = Calculator()
@@ -208,7 +208,7 @@ class CalculatorTest(unittest.TestCase):
             OperatorToken('+'),
             OperatorToken('*')
         ]
-        self.assertListEqual(expected, calculator.to_rpn(calculator.tokenize("( 3 * ( ( 2 ) + ( 4 ) ) )")))
+        self.assertListEqual(expected, calculator.to_rpn(calculator.tokenize("(3 * ((2) + (4)))")))
 
     def test_rpn_multiple_parentheses_decimal(self):
         calculator = Calculator()
@@ -219,7 +219,7 @@ class CalculatorTest(unittest.TestCase):
             OperatorToken('+'),
             OperatorToken('*')
         ]
-        self.assertListEqual(expected, calculator.to_rpn(calculator.tokenize("( 3.5 * ( ( 2.7 ) + ( 4.8 ) ) )")))
+        self.assertListEqual(expected, calculator.to_rpn(calculator.tokenize("(3.5 * ((2.7) + (4.8)))")))
 
     def test_rpn_operator_precedence(self):
         calculator = Calculator()
@@ -241,7 +241,7 @@ class CalculatorTest(unittest.TestCase):
             ValueToken(Decimal(4)),
             OperatorToken('*')
         ]
-        self.assertListEqual(expected, calculator.to_rpn(calculator.tokenize("( 5 + 3 ) * 4")))
+        self.assertListEqual(expected, calculator.to_rpn(calculator.tokenize("(5 + 3) * 4")))
 
     def test_rpn_division(self):
         calculator = Calculator()
