@@ -66,23 +66,30 @@ class Calculator:
         :param expression:  The input expression
         """
 
-        # todo do not depend on spaces anymore
-        raw_tokens = expression.split(' ')
         tokens = []
+        stripped_expression = expression.replace(' ', '')
 
-        decimal_regex = re.compile(r"^\d+(\.\d+)?$")
+        value_regex = re.compile(r"\d+(\.\d+)?")
+        operator_regex = re.compile(r"[^\d\.\(\)]")
+        left_parentheses_regex = re.compile(r"\(")
+        right_parentheses_regex = re.compile(r"\)")
 
-        for raw_token in raw_tokens:
-            if decimal_regex.match(raw_token):
+        regexps = [value_regex, operator_regex, left_parentheses_regex, right_parentheses_regex]
+        raw_patterns = "|".join(map(lambda regex: regex.pattern, regexps))
+        capture_regex = re.compile("(" + raw_patterns + ")")
+        for raw_token, something_else in capture_regex.findall(stripped_expression):
+            if value_regex.match(raw_token):
                 tokens.append(ValueToken(Decimal(raw_token)))
-            elif raw_token == '(':
-                tokens.append(LeftParenthesesToken())
-            elif raw_token == ')':
-                tokens.append(RightParenthesesToken())
-            else:
+            elif operator_regex.match(raw_token):
                 if raw_token not in self.__operators:
                     raise RuntimeError("unsupported operator: " + raw_token)
                 tokens.append(OperatorToken(raw_token))
+            elif left_parentheses_regex.match(raw_token):
+                tokens.append(LeftParenthesesToken())
+            elif right_parentheses_regex.match(raw_token):
+                tokens.append(RightParenthesesToken())
+            else:
+                raise RuntimeError("token " + raw_token + " does not match any regex")
 
         # resolve unary plus and minus operators
         for index, token in enumerate(tokens):

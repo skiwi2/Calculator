@@ -50,6 +50,24 @@ class CalculatorTest(unittest.TestCase):
         ]
         self.assertListEqual(expected, calculator.tokenize("( 3 )"))
 
+    def test_tokenize_simple_expression(self):
+        calculator = Calculator()
+        expected = [
+            ValueToken(Decimal(2)),
+            OperatorToken('*'),
+            ValueToken(Decimal(3))
+        ]
+        self.assertListEqual(expected, calculator.tokenize("2 * 3"))
+
+    def test_tokenize_simple_expression_packed(self):
+        calculator = Calculator()
+        expected = [
+            ValueToken(Decimal(2)),
+            OperatorToken('*'),
+            ValueToken(Decimal(3))
+        ]
+        self.assertListEqual(expected, calculator.tokenize("2*3"))
+
     def test_tokenize_expression(self):
         calculator = Calculator()
         expected = [
