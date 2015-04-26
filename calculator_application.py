@@ -5,8 +5,9 @@ __author__ = 'Frank van Heeswijk'
 
 if __name__ == '__main__':
     if len(sys.argv) < 2:
-        print("Usage: calculator_application <expression>")
+        print("Usage: calculator_application \"<expression>\"")
         sys.exit(1)
     calculator = Calculator()
-    result = calculator.evaluate("".join(sys.argv[1:]))
+    expression = " ".join(sys.argv[1:])
+    result = calculator.evaluate(expression)
     print(result)
