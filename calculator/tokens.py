@@ -59,3 +59,19 @@ class LeftParenthesesToken(Token):
 
     def __ne__(self, other):
         return not self == other
+
+
+class RightParenthesesToken(Token):
+    def __repr__(self):
+        return "RPT"
+
+    def __hash__(self):
+        return 0
+
+    def __eq__(self, other):
+        if type(self) != type(other):
+            return False
+        return True
+
+    def __ne__(self, other):
+        return not self == other
